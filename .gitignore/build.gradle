@@ -1,0 +1,73 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'java'
+}
+
+group = 'fr.alexpado.bots'
+version = '3.0.0-SNAPSHOT'
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+    compile group: 'org.json', name: 'json', version: '20190722'
+    compile 'net.dv8tion:JDA:4.2.0_214'
+    // https://mvnrepository._m/artifact/org.mariadb.jdbc/mariadb-java-client
+    compile group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.5.3'
+    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.20'
+
+    compile group: 'net.htmlparser.jericho', name: 'jericho-html', version: '3.4'
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+}
+
+task copyConfigurationMetadata(type: Copy) {
+    from(compileJava) {
+        include 'META-INF/spring-configuration-metadata.json'
+    }
+    into "out/production/classes"
+}
+compileJava {
+    dependsOn processResources
+    finalizedBy copyConfigurationMetadata
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(org.gradle.jvm.tasks.Jar) {
+
+    if (project.hasProperty('destinationPath')) {
+        destinationDirectory = file(project.property('destinationPath'))
+    }
+
+    if (project.hasProperty('destinationName')) {
+        archiveFileName = project.property('destinationName') + '.jar'
+    }
+
+}
